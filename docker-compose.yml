@@ -3,14 +3,15 @@ version: '3'
 services:
   postgis:
     # image: postgres
-    image: postgis/postgis
+    image: kartoza/postgis
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_MULTIPLE_EXTENSIONS: postgis
+      POSTGRES_PASS: admin
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql
       - ./postgis-tutorial:/data-tutorial
+      - ./data:/data
+      - ./sql:/sql
 
   pgadmin:
     image: dpage/pgadmin4:latest

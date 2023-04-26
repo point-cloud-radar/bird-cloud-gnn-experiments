@@ -1,0 +1,27 @@
+DROP TABLE IF EXISTS {TABLENAME};
+
+CREATE TABLE {TABLENAME} (
+  ogc_fid serial NOT NULL,
+  elevation double precision NOT NULL,
+  azimuth double precision NOT NULL,
+  range double precision NOT NULL,
+  x double precision NOT NULL,
+  y double precision NOT NULL,
+  z double precision NOT NULL,
+  DBZH double precision,
+  DBZV double precision,
+  TH double precision,
+  TV double precision,
+  VRADH double precision,
+  VRADV double precision,
+  WRADH double precision,
+  WRADV double precision,
+  PHIDP double precision,
+  RHOHV double precision,
+  KDP double precision,
+  ZDR double precision,
+  CLASS integer,
+  BIOLOGY integer
+);
+
+SELECT AddGeometryColumn('{TABLENAME}', 'geom', 0, 'POINT', 3);
