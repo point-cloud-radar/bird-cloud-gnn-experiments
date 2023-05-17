@@ -3,6 +3,7 @@ import logging
 import os
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from bird_cloud_gnn.gnn_model import GCN
@@ -21,7 +22,11 @@ if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 log_filename = os.path.join(LOG_DIR, f"{MODULE_NAME}.log")
 # Initialize the logger
-logging.basicConfig(filename=log_filename, level=logging.INFO)
+logging.basicConfig(
+    filename=log_filename,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 # set path to data
 DATA_PATH = "data/less/"
