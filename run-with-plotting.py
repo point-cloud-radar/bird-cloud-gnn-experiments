@@ -1,5 +1,4 @@
 import os
-
 import torch
 from bird_cloud_gnn.cross_validation import (
     get_dataloaders,
@@ -32,21 +31,24 @@ features = [
     "PHIDP",
     "RHOHV",
 ]
-
+MAX_EDGE_DISTANCE=650.0
+NUM_NEIGHBOURS=20
+LEARNING_RATE=0.001
+SEED=42
 dataset = RadarDataset(
     data=DATA_PATH,
     features=features,
     target="BIOLOGY",
-    num_neighbours=50,
-    max_poi_per_label=500,
-    max_edge_distance=650.0,
+    num_neighbours=NUM_NEIGHBOURS,
+    max_poi_per_label=50,
+    max_edge_distance=MAX_EDGE_DISTANCE,
 )
 
 print(f"Dataset size: {len(dataset)}")
 
 num_examples = len(dataset)
 num_train = int(num_examples * 0.8)
-np.random.seed(42)
+np.random.seed(SEED)
 train_idx = np.random.choice(num_examples, num_train, replace=False)
 test_idx = np.setdiff1d(np.arange(0, num_examples), train_idx, assume_unique=True)
 
@@ -57,13 +59,17 @@ train_dataloader, test_dataloader = get_dataloaders(
 )
 
 callback = CombinedCallback([
-    TensorboardCallback(),
-    EarlyStopperCallback(patience=50),
+    TensorboardCallback(
+        log_dir= "runs/"
+        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_neighbours_{NUM_NEIGHBOURS}/LR_{LEARNING_RATE}/"+
+        f"{SEED}_{len(dataset)}_{','.join(map(str, features))}_{dataset.hash}"),
+    EarlyStopperCallback(patience=50)
 ])
 
 model.fit_and_evaluate(
     train_dataloader,
     test_dataloader,
     callback,
+    learning_rate=LEARNING_RATE,
     num_epochs=500,
 )
