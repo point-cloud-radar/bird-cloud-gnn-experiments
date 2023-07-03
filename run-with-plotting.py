@@ -15,6 +15,8 @@ from dgl.dataloading import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 
+torch.manual_seed(42)
+
 DATA_PATH = "/opt/bird-data/"
 os.listdir(DATA_PATH)
 
