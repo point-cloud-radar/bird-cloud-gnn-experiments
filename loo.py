@@ -51,7 +51,7 @@ dataset = RadarDataset(
     data=DATA_PATH,
     features=features,
     target="BIOLOGY",
-    num_neighbours=20,
+    num_nodes=20,
     max_poi_per_label=2000,
     max_edge_distance=5_000.0,
 )

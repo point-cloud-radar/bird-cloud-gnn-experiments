@@ -34,7 +34,7 @@ features = [
     "RHOHV",
 ]
 MAX_EDGE_DISTANCE=650.0
-NUM_NEIGHBOURS=20
+NUM_NODES=20
 LEARNING_RATE=0.001
 SEED=42
 BATCH_SIZE=512
@@ -42,7 +42,7 @@ dataset = RadarDataset(
     data=DATA_PATH,
     features=features,
     target="BIOLOGY",
-    num_neighbours=NUM_NEIGHBOURS,
+    num_nodes=NUM_NODES,
     max_poi_per_label=50,
     max_edge_distance=MAX_EDGE_DISTANCE,
 )
@@ -64,7 +64,7 @@ train_dataloader, test_dataloader = get_dataloaders(
 callback = CombinedCallback([
     TensorboardCallback(
         log_dir= "runs/"
-        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_neighbours_{NUM_NEIGHBOURS}/"+
+        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_nodes_{NUM_NODES}/"+
         f"lr_{LEARNING_RATE}/batch_size_{BATCH_SIZE}/"+
         f"{SEED}_{len(dataset)}_{','.join(map(str, features))}_{dataset.hash}"),
     EarlyStopperCallback(patience=50)
