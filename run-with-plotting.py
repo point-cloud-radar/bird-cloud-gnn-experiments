@@ -23,18 +23,17 @@ features = [
     "range",
     "azimuth",
     "elevation",
-    "x",
-    "y",
     "z",
     "DBZH",
-    "DBZV",
     "TH",
-    "TV",
-    "PHIDP",
+    "VRADH",
     "RHOHV",
+    "PHIDP",
+    "centered_x",
+    "centered_y",
 ]
 MAX_EDGE_DISTANCE=650.0
-NUM_NODES=20
+NUM_NODES=50
 LEARNING_RATE=0.001
 SEED=42
 BATCH_SIZE=512
@@ -43,7 +42,7 @@ dataset = RadarDataset(
     features=features,
     target="BIOLOGY",
     num_nodes=NUM_NODES,
-    max_poi_per_label=50,
+    max_poi_per_label=500,
     max_edge_distance=MAX_EDGE_DISTANCE,
 )
 
