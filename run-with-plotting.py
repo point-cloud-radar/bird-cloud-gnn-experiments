@@ -35,6 +35,7 @@ MAX_EDGE_DISTANCE=650.0
 NUM_NEIGHBOURS=20
 LEARNING_RATE=0.001
 SEED=42
+BATCH_SIZE=512
 dataset = RadarDataset(
     data=DATA_PATH,
     features=features,
@@ -55,13 +56,14 @@ test_idx = np.setdiff1d(np.arange(0, num_examples), train_idx, assume_unique=Tru
 model = GCN(len(dataset.features), 16, 2)
 
 train_dataloader, test_dataloader = get_dataloaders(
-    dataset, train_idx, test_idx, batch_size=512
+    dataset, train_idx, test_idx, batch_size=BATCH_SIZE
 )
 
 callback = CombinedCallback([
     TensorboardCallback(
         log_dir= "runs/"
-        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_neighbours_{NUM_NEIGHBOURS}/LR_{LEARNING_RATE}/"+
+        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_neighbours_{NUM_NEIGHBOURS}/"+
+        f"lr_{LEARNING_RATE}/batch_size_{BATCH_SIZE}/"+
         f"{SEED}_{len(dataset)}_{','.join(map(str, features))}_{dataset.hash}"),
     EarlyStopperCallback(patience=50)
 ])
