@@ -62,11 +62,15 @@ train_dataloader, test_dataloader = get_dataloaders(
 
 callback = CombinedCallback([
     TensorboardCallback(
-        log_dir= "runs/"
-        f"max_edge_dist_{MAX_EDGE_DISTANCE}/num_nodes_{NUM_NODES}/"+
-        f"lr_{LEARNING_RATE}/batch_size_{BATCH_SIZE}/"+
-        f"{SEED}_{len(dataset)}_{','.join(map(str, features))}_{dataset.hash}"),
-    EarlyStopperCallback(patience=50)
+        log_dir = "/".join([
+            "runs",
+            dataset.oneline_description(),
+            model.oneline_description(),
+            f"LR_{LEARNING_RATE}-BS_{BATCH_SIZE}-SEED{SEED}",
+          ]
+        ),
+    ),
+    EarlyStopperCallback(patience=50),
 ])
 
 model.fit_and_evaluate(
