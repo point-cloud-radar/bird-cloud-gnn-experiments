@@ -110,6 +110,8 @@ dataset = RadarDataset(
 if config["verbose"]:
     print(f"Dataset size: {len(dataset)}")
 
+if isinstance(config['sch_multisteplr_milestones'], int):
+    config['sch_multisteplr_milestones']=[config['sch_multisteplr_milestones']]
 num_examples = len(dataset)
 num_train = int(num_examples * 0.8)
 np.random.seed(config["seed"])
