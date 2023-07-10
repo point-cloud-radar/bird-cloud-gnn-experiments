@@ -56,8 +56,10 @@ parser.add(
     env_var="DATA_PATH",
     help="The path to the data directory",
 )
-parser.add('--sch-multisteplr-gamma', default=1, type=float, help="The exponential decay of the learning rate, when using a stepped scheduling approach")
-parser.add('--sch-multisteplr-milestones', nargs="+", type=int,default=100, help="The epochs at which milestone decay should be executed")
+parser.add('--sch-multisteplr-gamma', default=1, type=float, 
+           help="The exponential decay of the learning rate, when using a stepped scheduling approach")
+parser.add('--sch-multisteplr-milestones', nargs="+", 
+           type=int,default=100, help="The epochs at which milestone decay should be executed")
 
 parser.add('--sch-explr-gamma', default=1, type=float, help="The exponential decay of the learning rate per epoch")
 args = parser.parse_args()
@@ -119,18 +121,20 @@ model = GCN(len(dataset.features), config["num_hidden_features"], 2)
 train_dataloader, test_dataloader = get_dataloaders(
     dataset, train_idx, test_idx, batch_size=config["batch_size"]
 )
-
-callback = CombinedCallback(
-    [
-        TensorboardCallback(
-            log_dir="/".join(
+pth= "/".join(
                 [
                     "runs",
                     dataset.oneline_description(),
                     model.oneline_description(),
-                    f"LR_{config['learning_rate']}-BS_{config['batch_size']}-SEED{config['seed']}",
-                ]
-            ),
+                    f"LR_{config['learning_rate']}-BS_{config['batch_size']}-SEED_{config['seed']}-SMG_{config['sch_multisteplr_gamma']}-SEG_{config['sch_explr_gamma']}",
+                ])
+if(config['verbose']):
+    print(f"Using path: {pth}")
+callback = CombinedCallback(
+    [
+        TensorboardCallback(
+            log_dir=pth
+            ,
         ),
         EarlyStopperCallback(patience=500),
     ]
@@ -146,3 +150,4 @@ model.fit_and_evaluate(
     sch_multisteplr_gamma=config['sch_multisteplr_gamma'],
     sch_multisteplr_milestones=config['sch_multisteplr_milestones'],
 )
+torch.save(model.state_dict, pth+".pt")
