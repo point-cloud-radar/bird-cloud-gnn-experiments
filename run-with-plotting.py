@@ -44,6 +44,8 @@ dataset = RadarDataset(
     num_nodes=NUM_NODES,
     max_poi_per_label=500,
     max_edge_distance=MAX_EDGE_DISTANCE,
+    use_missing_indicator_columns=True,
+    add_edges_to_poi=True,
 )
 
 print(f"Dataset size: {len(dataset)}")
