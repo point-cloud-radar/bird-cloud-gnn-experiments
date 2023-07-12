@@ -171,4 +171,5 @@ model.fit_and_evaluate(
     sch_multisteplr_gamma=config['sch_multisteplr_gamma'],
     sch_multisteplr_milestones=config['sch_multisteplr_milestones'],
 )
+
 torch.save(model.state_dict(), pth+".pt")
