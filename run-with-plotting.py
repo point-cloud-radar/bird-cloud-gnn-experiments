@@ -119,7 +119,7 @@ num_train = int(num_examples * 0.8)
 np.random.seed(config["seed"])
 if config['sample_origin']:
     # sample per origin, by first tabulating the count per origin, randomizing the order, abs cumilatively suming this
-    # Not that the test split will be minimal 20% but might be slightly larger as there is not always the right number of graphs per origin 
+    # Note that the test split will be minimal 20% but might be slightly larger as there is not always the right number of graphs per origin 
     train_origins=dataset.origin.value_counts().sample(frac=1).cumsum().loc[lambda x :x <= num_train].index
     train_idx=pd.Series(dataset.origin).index.where(dataset.origin.isin(train_origins)).dropna().to_numpy().astype(int)
     test_origins= dataset.origin.unique()[~dataset.origin.unique().isin(train_origins)]
@@ -127,6 +127,10 @@ if config['sample_origin']:
         print(f"# target train samples: {num_train} - resulting # train: {len(train_idx)} - out of: {num_examples}")
         print(f"Test origins (n={len(test_origins)}): " +" ".join(test_origins))
         print(f"Train origins (n={len(train_origins)}): " +" ".join(train_origins))
+        print("Testing balance: "+ str(dataset.labels[pd.Series(dataset.origin).index.where(~dataset.origin.isin(train_origins)).dropna().to_numpy().astype(int)].numpy().mean()))
+        print("Training balance: "+ str(dataset.labels[train_idx].numpy().mean()))
+        print(f"Overall balance: {dataset.labels.numpy().mean()}")
+
 else:
     train_idx = np.random.choice(num_examples, num_train, replace=False)
 test_idx = np.setdiff1d(np.arange(0, num_examples), train_idx, assume_unique=True)
