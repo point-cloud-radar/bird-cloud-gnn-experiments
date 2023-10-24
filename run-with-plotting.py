@@ -80,6 +80,12 @@ from bird_cloud_gnn.radar_dataset import RadarDataset
 from dgl.dataloading import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
+from pytorch import nn
+
+torch.manual_seed(46)
+
+DATA_PATH = "../data/volume_2/parquet/"
+os.listdir(DATA_PATH)
 
 features = [
     "range",
@@ -94,21 +100,22 @@ features = [
     "centered_x",
     "centered_y",
 ]
-torch.manual_seed(config["seed"])
-
+MAX_EDGE_DISTANCE = 650.0
+NUM_NODES = 50
+LEARNING_RATE = 0.005
+SEED = 46
+BATCH_SIZE = 512
 dataset = RadarDataset(
     data=config["data_path"],
     features=features,
     target="BIOLOGY",
-    num_nodes=config["num_nodes"],
-    max_poi_per_label=config["max_poi_per_label"],
-    max_edge_distance=config["max_edge_distance"],
-    use_missing_indicator_columns=config["skip_missing_indicator_columns"],
-    add_edges_to_poi=config["remove_edges_to_poi"],
+    num_nodes=NUM_NODES,
+    max_poi_per_label=5000,  # 500
+    max_edge_distance=MAX_EDGE_DISTANCE,
+    use_missing_indicator_columns=True,
+    add_edges_to_poi=True,
 )
-
-if config["verbose"]:
-    print(f"Dataset size: {len(dataset)}")
+print(f"Dataset size: {len(dataset)}")
 
 if isinstance(config['sch_multisteplr_milestones'], int):
     config['sch_multisteplr_milestones']=[config['sch_multisteplr_milestones']]
@@ -118,25 +125,24 @@ np.random.seed(config["seed"])
 train_idx = np.random.choice(num_examples, num_train, replace=False)
 test_idx = np.setdiff1d(np.arange(0, num_examples), train_idx, assume_unique=True)
 
-model = GCN(len(dataset.features), config["num_hidden_features"], 2)
+model = GCN(len(dataset.features), [(16, nn.ReLU()), (16, nn.ReLU()), (2, None)])
 
 train_dataloader, test_dataloader = get_dataloaders(
     dataset, train_idx, test_idx, batch_size=config["batch_size"]
 )
-pth= "/".join(
+
+callback = CombinedCallback(
+    [
+        TensorboardCallback(
+            log_dir="/".join(
                 [
                     "runs",
                     dataset.oneline_description(),
                     model.oneline_description(),
-                    f"LR_{config['learning_rate']}-BS_{config['batch_size']}-SEED_{config['seed']}-SMG_{config['sch_multisteplr_gamma']}-SEG_{config['sch_explr_gamma']}",
-                ])
-if(config['verbose']):
-    print(f"Using path: {pth}")
-callback = CombinedCallback(
-    [
-        TensorboardCallback(
-            log_dir=pth
-            ,
+                    f"LR_{LEARNING_RATE}-BS_{BATCH_SIZE}-SEED{SEED}",
+                    f"1,[150,300],0.5",
+                ]
+            ),
         ),
         EarlyStopperCallback(patience=500),
     ]
@@ -146,10 +152,10 @@ model.fit_and_evaluate(
     train_dataloader,
     test_dataloader,
     callback,
-    learning_rate=config["learning_rate"],
-    num_epochs=config["num_epochs"],
-    sch_explr_gamma=config["sch_explr_gamma"],
-    sch_multisteplr_gamma=config['sch_multisteplr_gamma'],
-    sch_multisteplr_milestones=config['sch_multisteplr_milestones'],
+    learning_rate=LEARNING_RATE,
+    num_epochs=500,
+    sch_explr_gamma=1,
+    sch_multisteplr_milestones=[150, 300],
+    sch_multisteplr_gamma=0.5,
 )
 torch.save(model.state_dict(), pth+".pt")
